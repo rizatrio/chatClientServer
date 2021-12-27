@@ -75,6 +75,9 @@ public class ClientHandler {
                         this.nickName = nick;
                         myServer.sendMessageToClients(nickName + " connected to chat");
                         myServer.subscribe(this);
+                          return;
+                    }
+                    else{
                         sendMessage("Your nick now busy!");
                     }
                 } else {
