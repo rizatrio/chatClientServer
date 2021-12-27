@@ -24,6 +24,7 @@ class EchoClient extends JFrame {
     private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
+    private boolean isAuthorised;
 
     public EchoClient() throws Exception {
         connectionServer();
@@ -34,17 +35,18 @@ class EchoClient extends JFrame {
         socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
-
+        setAuthorised(false);
         Thread thread = new Thread(() -> {
             try {
                 while (true) {
                     String message = dis.readUTF();
                     if (message.startsWith("/start")) {
+                        setAuthorised(true);
                         chatArea.append(message + "\n");
                         break; //not return
-                    } else {
-                        chatArea.append(message + "\n");
                     }
+                    chatArea.append(message + "\n");
+
                 }
 
                 while (true) {
@@ -62,6 +64,22 @@ class EchoClient extends JFrame {
 
         thread.setDaemon(true);
         thread.start();
+
+        Thread checkConnectionThread = new Thread(() -> {
+
+            try {
+                Thread.sleep(12000);
+                if (!isAuthorised) {
+                    closeConnection();
+                    chatArea.append("Закройте окно! Вы не авторизовались," + "\n"
+                            + "Соединение будет разорванно.");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        checkConnectionThread.setDaemon(true);
+        checkConnectionThread.start();
 
     }
 
@@ -101,7 +119,7 @@ class EchoClient extends JFrame {
     public void prepareGUI() {
 
         // Параметры окна
-        setBounds(600, 300, 500, 500);
+        setBounds(600, 300, 300, 300);
         setTitle("Клиент");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -146,6 +164,15 @@ class EchoClient extends JFrame {
         setVisible(true);
     }
 
+    public boolean isAuthorised() {
+
+        return isAuthorised;
+    }
+
+    public void setAuthorised(boolean authorised) {
+
+        isAuthorised = authorised;
+    }
 
 }
 

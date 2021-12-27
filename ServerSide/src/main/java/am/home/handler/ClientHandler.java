@@ -75,6 +75,9 @@ public class ClientHandler {
                         this.nickName = nick;
                         myServer.sendMessageToClients(nickName + " connected to chat");
                         myServer.subscribe(this);
+                        return;
+                    }
+                    else{
                         sendMessage("Your nick now busy!");
                     }
                 } else {
@@ -96,12 +99,22 @@ public class ClientHandler {
     public void receiveMessage() throws IOException {
         while (true) {
             String message = dis.readUTF();
-            if (message.startsWith("/finish")) {
-                myServer.sendMessageToClients(nickName + "exit to chat");
-                return;
-            } else {
-                myServer.sendMessageToClients(nickName + ": - " + message);
+            if (message.startsWith("/")) {
+                if (message.startsWith("/finish")) {
+                    myServer.sendMessageToClients(nickName + "exit to chat");
+                    return;
+                }
+                if (message.startsWith("/nick")) {
+                    String to = message.split("-", 3)[1];
+                    String msg = message.split("-", 3)[2];
+                    myServer.sendMessageToClients(this, to, msg);
+                }
+                if (message.startsWith("/online")) {
+                    myServer.getOnlineUsers(this);
+                }
+                continue;
             }
+            myServer.sendMessageToClients(nickName + ": - " + message);
         }
     }
 

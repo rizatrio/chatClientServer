@@ -43,8 +43,34 @@ public class MyServer {
                 .anyMatch(clientHandler -> clientHandler.getNickName().equalsIgnoreCase(nickName));
     }
 
+    public synchronized void sendMessageToClients(ClientHandler from, String to, String message) {
+        boolean check = true;
+        for (ClientHandler clientHandler : handlerList) {
+            if (clientHandler.getNickName().equals(to)) {
+                clientHandler.sendMessage("From " + from.getNickName() + " " + to + ": " + message);
+                from.sendMessage(from.getNickName() + " " + to + ": " + message);
+                check = false;
+                return;
+            }
+        }
+        if (check) {
+            from.sendMessage("User with nick " + to + " out in chat!");
+        }
+    }
+
     public synchronized void sendMessageToClients(String message) {
         handlerList.forEach(clientHandler -> clientHandler.sendMessage(message));
+    }
+
+    public synchronized void getOnlineUsers(ClientHandler ch) {
+        String s = new String("Now online:\n");
+        for (ClientHandler clientHandler : handlerList) {
+            if (ch.getNickName().equals(clientHandler.getNickName())) {
+                continue;
+            }
+            s = s.concat(clientHandler.getNickName() + "\n");
+        }
+        ch.sendMessage(s);
     }
 
     public synchronized void subscribe(ClientHandler clientHandler) {
@@ -58,6 +84,4 @@ public class MyServer {
     public AuthenticationService getAuthenticationService() {
         return this.authenticationService;
     }
-
-
 }
