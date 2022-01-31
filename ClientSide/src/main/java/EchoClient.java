@@ -24,8 +24,10 @@ class EchoClient extends JFrame {
     private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
+    private HistoryHandler historyHandler;
 
     public EchoClient() throws Exception {
+        historyHandler = new HistoryHandler();
         connectionServer();
         prepareGUI();
     }
@@ -39,19 +41,31 @@ class EchoClient extends JFrame {
                 while (true) {
                     String message = dis.readUTF();
                     if (message.startsWith("/start")) {
+                        historyHandler.history(message.split(" ")[1] + ".txt");
+                        historyHandler.getHistoryList().stream().forEach((history) -> chatArea.append(history + "\n"));
+                        historyHandler.getHistoryList().clear();
                         chatArea.append(message + "\n");
                         break; //not return
                     }
+                    if (message.equalsIgnoreCase("/finish")) {
+                        chatArea.append(message + "\n");
+                        break; //not return
+                    }
+                    historyHandler.writeHistory(message);
                     chatArea.append(message + "\n");
 
                 }
 
-                while (true) {
-                    String fromServer = dis.readUTF();
-                    if (fromServer.equalsIgnoreCase("/finish")) {
-                        break; //not return
+                while(true) {
+                    String text = dis.readUTF();
+                    if (text.startsWith("/finish")) {
+                        closeConnection();
+                        msgInputField.setText("");
+                        msgInputField.setEditable(false);
+                        break;
                     }
-                    chatArea.append(fromServer + "\n");
+                    historyHandler.writeHistory(text);
+                    chatArea.append(text + "\n");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -82,6 +96,7 @@ class EchoClient extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        historyHandler.closeStreams();
     }
 
     private void sendMessageToServer() {
@@ -91,6 +106,11 @@ class EchoClient extends JFrame {
                 dos.writeUTF(msg);
                 msgInputField.setText("");
                 msgInputField.grabFocus();
+                if (msg.startsWith("/finish")) {
+                    chatArea.append("вы закрыли соединение\n");
+                    msgInputField.setText("");
+                    msgInputField.setEditable(false);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(null, "You send incorrect message");

@@ -119,7 +119,9 @@ public class ClientHandler {
             String message = dis.readUTF();
             if (message.startsWith("/")) {
                 if (message.startsWith("/finish")) {
-                    myServer.sendMessageToClients(nickName + "exit to chat");
+                    myServer.unSubscribe(this);
+                    sendMessage(message);
+                    myServer.sendMessageToClients(nickName + " exit to chat");
                     return;
                 }
                 if (message.startsWith("/nick")) {
