@@ -15,3 +15,5 @@ A: - dtge
 From A A: hello
 A A: hello
 A: - ergeg
+A: - how
+A: - are you

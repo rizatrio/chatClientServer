@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyServer {
 
@@ -15,10 +17,12 @@ public class MyServer {
 
     private AuthenticationService authenticationService;
     private List<ClientHandler> handlerList;
+    private ExecutorService executorService;
 
     public MyServer() {
         System.out.println("Server started");
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            executorService = Executors.newCachedThreadPool();
             authenticationService = new AuthenticationServiceImpl();
             authenticationService.start();
             handlerList = new ArrayList<>();
@@ -33,6 +37,7 @@ public class MyServer {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            executorService.shutdown();
             authenticationService.stop();
         }
     }
@@ -83,5 +88,9 @@ public class MyServer {
 
     public AuthenticationService getAuthenticationService() {
         return this.authenticationService;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }
