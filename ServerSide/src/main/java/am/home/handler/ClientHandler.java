@@ -6,8 +6,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class ClientHandler {
+
+    private static final Logger log = LogManager.getLogger(ClientHandler.class);
     private MyServer myServer;
     private Socket socket;
     private DataInputStream dis;
@@ -26,8 +31,10 @@ public class ClientHandler {
             new Thread(() -> {
                 try {
                     Thread.sleep(120000);
+                    log.info("Client disconnected by timeout");
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    log.error(e);
                 }
                 if (!isDisconnected) {
                     sendMessage("/finish");
@@ -41,7 +48,8 @@ public class ClientHandler {
                         receiveMessage();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    log.error(e);
                 } finally {
                     closeConnection();
                     isDisconnected = true;
@@ -49,27 +57,32 @@ public class ClientHandler {
             }).start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
 
     }
 
     private void closeConnection() {
         myServer.unSubscribe(this);
+        log.info("Client exited the chat");
         try {
             dis.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
         try {
             dos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -92,14 +105,17 @@ public class ClientHandler {
                         sendMessage("/start " + nick);
                         this.nickName = nick;
                         myServer.sendMessageToClients(nickName + " connected to chat");
+                        log.info(nickName + " connected to chat");
                         myServer.subscribe(this);
                         return;
                     }
                     else{
                         sendMessage("Your nick now busy!");
+                        log.info("Your nick now busy!");
                     }
                 } else {
                     sendMessage("Wrong login or password!");
+                    log.info("Wrong login or password!");
                 }
 
             }
@@ -110,7 +126,8 @@ public class ClientHandler {
         try {
             dos.writeUTF(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
     }
 

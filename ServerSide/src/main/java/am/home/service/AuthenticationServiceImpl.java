@@ -9,9 +9,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    private static final Logger log = LogManager.getLogger(AuthenticationServiceImpl.class);
     private List<UserEntity> userEntityList;
     private static Connection connection;
     private static Statement statement;
@@ -29,15 +32,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             connection = DBCon.getConnection();
             statement = DBCon.getStatement();
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
             DBCon.closeConnection();
         }
-        System.out.println("Authentication service start");
+        //System.out.println("Authentication service start");
+        log.info("Authentication service start");
     }
 
     @Override
     public void stop() {
-        System.out.println("Authentication service stop");
+        //System.out.println("Authentication service stop");
+        log.info("Authentication service stop");
         DBCon.closeConnection();
     }
 
@@ -53,7 +59,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             return DBCon.getNickNameByLoginAndPassword(login, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         }
         return null;
     }

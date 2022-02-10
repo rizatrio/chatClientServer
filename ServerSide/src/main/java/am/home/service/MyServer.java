@@ -10,32 +10,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MyServer {
 
     private static final Integer PORT = 8880;
+    private static final Logger log = LogManager.getLogger(MyServer.class);
 
     private AuthenticationService authenticationService;
     private List<ClientHandler> handlerList;
     private ExecutorService executorService;
 
     public MyServer() {
-        System.out.println("Server started");
+        //System.out.println("Server started");
+        log.info("The server is running...");
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             executorService = Executors.newCachedThreadPool();
             authenticationService = new AuthenticationServiceImpl();
             authenticationService.start();
             handlerList = new ArrayList<>();
             while (true) {
-                System.out.println("Server wait connection...");
+                //System.out.println("Server wait connection...");
+                log.info("Server wait connection...");
                 Socket socket = serverSocket.accept();
-                System.out.println("Client connected");
+                //System.out.println("Client connected");
+                log.info("Client connected");
                 new ClientHandler(this, socket);
 
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.error(e);
         } finally {
             executorService.shutdown();
             authenticationService.stop();
@@ -53,6 +60,7 @@ public class MyServer {
         for (ClientHandler clientHandler : handlerList) {
             if (clientHandler.getNickName().equals(to)) {
                 clientHandler.sendMessage("From " + from.getNickName() + " " + to + ": " + message);
+                log.info("message From " + from.getNickName() + " " + to + ": " + message);
                 from.sendMessage(from.getNickName() + " " + to + ": " + message);
                 check = false;
                 return;
@@ -60,6 +68,7 @@ public class MyServer {
         }
         if (check) {
             from.sendMessage("User with nick " + to + " out in chat!");
+            log.info("User with nick " + to + " out in chat!");
         }
     }
 
