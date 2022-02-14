@@ -1,0 +1,19 @@
+A: - eeg
+A: - gt4h4
+A: - etete
+A: - grh
+A: - hhr
+A: - egrth
+A: - rthrh
+A: - hrthr
+A: - rtr
+A: - rth
+Now online:
+B
+
+A: - dtge
+From A A: hello
+A A: hello
+A: - ergeg
+A: - how
+A: - are you
